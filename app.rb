@@ -114,4 +114,9 @@ module ZeroWx
       csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1"
     end
   end
+
+  class NationalWeatherService < Api
+  end
+
 end
+
