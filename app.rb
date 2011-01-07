@@ -116,6 +116,7 @@ module ZeroWx
   end
 
   class NationalWeatherService < Api
+    self.base_url = "not specified yet"
   end
 
 end
