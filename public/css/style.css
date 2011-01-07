@@ -52,7 +52,7 @@ strong, th { font-weight: bold; }
 td, td img { vertical-align: top; } 
 sub { vertical-align: sub; font-size: smaller; }
 sup { vertical-align: super; font-size: smaller; }
-pre {  padding: 15px;  white-space: pre;  white-space: pre-wrap;  white-space: pre-line;  word-wrap: break-word; }
+pre {  padding: 15px; /* white-space: pre;  white-space: pre-wrap;  white-space: pre-line;  word-wrap: break-word;*/ }
 textarea { overflow: auto; } 
 .ie6 legend, .ie7 legend { margin-left: -7px; } 
 input[type="radio"] { vertical-align: text-bottom; }
@@ -82,22 +82,74 @@ button {  width: auto; overflow: visible; }
 .clearfix { zoom: 1; }
 
 
- /* Primary Styles
-    Author: 
- */
+/* ***** */
+
+.station {
+  width: 320px;
+  max-width: 768px;
+  min-width: 320px;
+  color: #EEE;
+background: #0066CC; /* old browsers */
+background: -moz-linear-gradient(top, #0066CC 0%, #193B7F 100%); /* firefox */
+
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0066CC), color-stop(100%,#193B7F)); /* webkit */
+
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0066CC', endColorstr='#193B7F',GradientType=0 ); /* ie */
+
+-webkit-box-shadow: inset 1px 1px 1px rgba(255,255,255,0.5),
+                    inset -1px -1px 1px rgba(0,0,0,0.5);
+-moz-box-shadow:    inset 0px 1px 1px #ffffff,
+                    inset 0px -1px 1px rgba(0,0,0,0.5);
+box-shadow:         inset 0px 1px 1px #ffffff,
+                    inset 0px -1px 1px rgba(0,0,0,0.5);
 
 
 
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+
+  padding: 5px 10px;
+}
+
+.location {
+  font-size: 0.846em;
+  float: left;
+}
+.updated_at {
+  font-size: 0.846em;
+  float: right;
+  text-align: right;
+}
+
+.right {
+  float: right;
+  text-align: right;
+  font-size: 1.23em;
+  line-height: 1.5em;
+  margin-top: 12px;
+}
+
+.temperature {
+  font-size: 5.53em;
+  line-height: 1em;
+  font-weight: bold;
+  color: #FFF;
+  text-shadow: 0 1px 0 #ccc,
+               0 2px 0 #c9c9c9,
+               0 3px 0 #bbb,
+               0 6px 1px rgba(0,0,0,.1),
+               0 0 5px rgba(0,0,0,.1),
+               0 1px 3px rgba(0,0,0,.3),
+               0 3px 5px rgba(0,0,0,.2),
+               0 5px 10px rgba(0,0,0,.25),
+               0 10px 10px rgba(0,0,0,.2),
+               0 20px 20px rgba(0,0,0,.15);
+  
+}
 
 
-
-
-
-
-
-
-
-
+/* ***** */
 
 @media all and (orientation:portrait) { 
   
