@@ -85,7 +85,7 @@ button {  width: auto; overflow: visible; }
 /* ***** */
 
 .station {
-  width: 320px;
+  width: 640px;
   max-width: 768px;
   min-width: 320px;
   color: #EEE;
@@ -146,6 +146,11 @@ box-shadow:         inset 0px 1px 1px #ffffff,
                0 10px 10px rgba(0,0,0,.2),
                0 20px 20px rgba(0,0,0,.15);
   
+}
+
+.hourly, .history {
+  position: absolute;
+  left: 0;
 }
 
 

@@ -1,6 +1,9 @@
 require "sinatra/base"
 require "erb"
 require "patron"
+require "json"
+
+require "time"
 
 require "csv"
 if CSV.const_defined? :Reader
@@ -18,6 +21,7 @@ module ZeroWx
 
     def initialize(*args)
       super
+      Cache.server = Dalli::Client.new "127.0.0.1:11211", :expires_in => 60
       @wu = WeatherUnderground.new
       @nws = NationalWeatherService.new
     end
@@ -30,12 +34,75 @@ module ZeroWx
     get "/" do
       @conditions = @wu.current_conditions("KCOBOULD29")
       @forecast = @wu.forecast("80305")
-      # @history = @wu.daily_history("KCOBOULD29")
+      @history = @wu.daily_history("KCOBOULD29")
+
+      hourly = @nws.hourly_forecast
+
+      now = Time.now
+      current_hour = Time.mktime(now.year, now.month, now.day, now.hour)
+      hours = (-12..36).to_a.map { |o| current_hour + (o * 60 * 60) }
+      times = -12.step(36, 0.25).to_a.map { |t| current_hour + (t * 60 * 60) }
+
+      # offset = hourly.times.index { |t| t >= hours.first && t <= hours.last }
+      # puts "offset is #{offset}"
+      # @temperatures = hourly.temperatures[offset..(offset + hours.size)]
+      @temperatures = hours.map { |t| hourly.temp[t] }
+
+      sunrise = @forecast["moon_phase"]["sunrise"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunrise"]["minute"].to_i
+      sunset = @forecast["moon_phase"]["sunset"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunset"]["minute"].to_i
+      daytime = sunrise..sunset
+      @night_day = times.map do |t|
+        daytime.include?(t.hour * 60 + t.min) ? 1 : nil
+      end
+      @hour_marks = hours.map { |t| t.hour % 6 == 0 ? 1 : nil }
+
+      now = Time.now
+      start_time = Time.mktime(now.year, now.month, now.day)
+      end_time = Time.mktime(now.year, now.month, now.day, now.hour, (now.min / 15.0).floor * 15)
+
+      @history.each do |h|
+        h["Time"] = Time.parse(h["Time"])
+      end
+
+      @temp_history = times.map do |t|
+        time_range = (t.to_i - 15*30)..(t.to_i + 15 * 30)
+        temps = @history.select { |h| time_range.include? h["Time"].to_i }.map { |h| h["TemperatureF"].to_i }
+        if temps.empty?
+          nil
+        else
+          temps.inject(0) { |m,v| m + v } / temps.size.to_f # average temperature for this time range
+        end
+      end
+      # remove trailing nils:
+      @temp_history.pop while @temp_history.size > 0 && !@temp_history.last
+
+      puts "-" * 80
+
       erb :index
     end
   end
 
+  module Cache
+    class << self
+      attr_accessor :server
+    end
+
+    def cache(method_name, ttl)
+      method = instance_method(method_name)
+      define_method method_name do |*args|
+        # key = ([method_name] + args).map {|v| v.to_s }.join(":")
+        key = "#{method_name}:#{args.hash}"
+        puts "*** retrieving cached value for #{method_name} #{args.inspect}"
+        return Cache.server.fetch(key, ttl) do
+          puts "*** generating cached value for #{method_name} #{args.inspect}"
+          method.bind(self).call(*args)
+        end
+      end
+    end
+  end
+
   class Api
+    extend Cache
 
     Error = Class.new(StandardError)
 
@@ -47,6 +114,7 @@ module ZeroWx
 
     def initialize
       @http = Patron::Session.new
+      http.timeout = 30
       http.base_url = self.class.base_url or raise "no base url!"
     end
 
@@ -55,16 +123,21 @@ module ZeroWx
       if response.status >= 300
         raise Error, "HTTP #{response.code}\n#{response.body}"
       else
-        puts "*** #{url} #{params.inspect} ***"
-        puts response.body
+        # puts "*** #{url} #{params.inspect} ***"
+        # puts response.body
         return response
       end
     end
 
-    def xml_get(url, params={})
+    def hash_get(url, params={})
       response = get url, params
       doc = Nokogiri::XML.parse(response.body)
       return hashify(doc)
+    end
+
+    def xml_get(url, params={})
+      response = get url, params
+      return Nokogiri::XML.parse(response.body)
     end
 
     def csv_get(url, params={})
@@ -91,10 +164,11 @@ module ZeroWx
 
     def csv_data(doc)
       data = []
+      doc = doc.gsub(/<[^>]+>/, "")
       FasterCSV.parse(doc, :headers => true, :return_headers => false) do |row|
         data << row.to_hash
       end
-      return data
+      return data.reject { |h| h.empty? }
     end
 
   end
@@ -103,20 +177,55 @@ module ZeroWx
     self.base_url = "http://api.wunderground.com"
 
     def current_conditions(station_id)
-      xml_get("/weatherstation/WXCurrentObXML.asp?ID=#{station_id}")["current_observation"]
+      hash_get("/weatherstation/WXCurrentObXML.asp?ID=#{station_id}")["current_observation"]
     end
+    cache :current_conditions, 60
 
     def forecast(query)
-      xml_get("/auto/wui/geo/ForecastXML/index.xml?query=#{query}")["forecast"]
+      hash_get("/auto/wui/geo/ForecastXML/index.xml?query=#{query}")["forecast"]
     end
+    cache :forecast, 60
 
     def daily_history(station_id)
       csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1"
     end
+    cache :daily_history, 60
   end
 
   class NationalWeatherService < Api
-    self.base_url = "not specified yet"
+    self.base_url = "http://forecast.weather.gov"
+
+    class HourlyForecast
+      attr_reader :doc
+      def initialize(doc)
+        @doc = doc
+      end
+
+      def temperatures
+        return doc.xpath("/dwml/data/parameters/temperature[@type='hourly']/value").map do |temp|
+          if temp.content.empty?
+            nil
+          else
+            temp.content.to_i
+          end
+        end
+      end
+
+      def times
+        return doc.xpath("/dwml/data/time-layout/start-valid-time").map { |t| Time.parse(t.content) }
+      end
+
+      def temp
+        @temp ||= Hash[times.zip(temperatures)]
+      end
+
+    end
+
+    def hourly_forecast
+      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=digitalDWML"
+      return HourlyForecast.new(doc)
+    end
+
   end
 
 end

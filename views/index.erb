@@ -24,11 +24,67 @@
 
 </div>
 
+<div class="hourly"></div>
+<div class="history"></div>
 
-<!--
-<pre>
-<% require 'yaml' %>
-<%= @conditions.to_yaml %>
-<%= @forecast.to_yaml %>
-</pre>
--->
+<script>
+head.ready(function() {
+  <% min_t = (@temp_history + @temperatures).compact.min - 5 %>
+  <% max_t = (@temp_history + @temperatures).compact.max + 5 %>
+  $('.hourly').sparkline(
+    <%= @night_day.to_json %>,
+    {
+      height: 50,
+      type: 'bar',
+      barSpacing: 0,
+      barWidth: 1,
+      barColor: '#EEE',
+      chartRangeMin: 0,
+      chartRangeMax: 1
+    }
+  );
+  $('.hourly').sparkline(
+    <%= @hour_marks.to_json %>,
+    {
+      height: 50,
+      type: 'bar',
+      composite: true,
+      barSpacing: 3,
+      barWidth: 1,
+      barColor: '#DDD',
+      chartRangeMin: 0,
+      chartRangeMax: 1
+    }
+  );
+
+  $('.hourly').sparkline(
+    <%= @temperatures.to_json %>,
+    {
+      height: 50,
+      defaultPixelsPerValue: 4,
+      fillColor: false,
+      composite: true,
+      chartRangeMin: <%= min_t %>,
+      chartRangeMax: <%= max_t %>,
+      lineColor: '#AAA',
+      minSpotColor: false,
+      maxSpotColor: false,
+      spotColor: false
+    }
+  );
+  $('.history').sparkline(
+    <%= @temp_history.to_json %>,
+    {
+      height: 50,
+      composite: true,
+      fillColor: false,
+      defaultPixelsPerValue: 1,
+      chartRangeMin: <%= min_t %>,
+      chartRangeMax: <%= max_t %>,
+      spotColor: '#F00',
+      minSpotColor: false,
+      maxSpotColor: false
+    }
+  );
+});
+</script>
