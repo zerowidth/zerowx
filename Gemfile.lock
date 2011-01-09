@@ -1,7 +1,9 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    dalli (1.0.1)
     fastercsv (1.5.3)
+    json (1.4.6)
     nokogiri (1.4.4)
     patron (0.4.9)
     rack (1.2.1)
@@ -14,7 +16,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  dalli (~> 1.0.1)
   fastercsv (~> 1.5.3)
+  json (~> 1.4.6)
   nokogiri (~> 1.4.4)
   patron (= 0.4.9)
   sinatra (~> 1.1.2)
