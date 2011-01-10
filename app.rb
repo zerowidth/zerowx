@@ -14,14 +14,96 @@ end
 
 module ZeroWx
 
+  class Api
+    Error = Class.new(StandardError)
+
+    class << self
+      attr_accessor :base_url
+      attr_accessor :cache_server
+    end
+
+    attr_reader :http
+
+    def initialize
+      @http = Patron::Session.new
+      http.timeout = 30
+      http.base_url = self.class.base_url or raise "no base url!"
+    end
+
+    def cache(key, ttl)
+      if Api.cache_server
+        puts "cache get: #{key}"
+        Api.cache_server.fetch(key, ttl) do
+          puts "cache set: #{key} - #{ttl}"
+          yield
+        end
+      else
+        yield
+      end
+    end
+
+    def get(url, opts)
+      ttl = opts.delete :cache
+      return cache url, ttl do
+        response = http.get url
+        if response.status >= 300
+          raise Error, "HTTP #{response.code}\n#{response.body}"
+        end
+        response.body
+      end
+    end
+
+    def hash_get(url, opts={})
+      response = get url, opts
+      doc = Nokogiri::XML.parse(response)
+      return hashify(doc)
+    end
+
+    def xml_get(url, opts={})
+      response = get url, opts
+      return Nokogiri::XML.parse(response)
+    end
+
+    def csv_get(url, opts={})
+      response = get url, opts
+      return csv_data(response)
+    end
+
+    def hashify(xml)
+      h = {}
+      if xml.element_children.empty?
+        return xml.content
+      else
+        xml.element_children.each do |child|
+          if h[child.name]
+            h[child.name] = [h[child.name]] unless h[child.name].kind_of?(Array)
+            h[child.name].push hashify(child)
+          else
+            h[child.name] = hashify child
+          end
+        end
+        return h
+      end
+    end
+
+    def csv_data(doc)
+      data = []
+      doc = doc.gsub(/<[^>]+>/, "")
+      FasterCSV.parse(doc, :headers => true, :return_headers => false) do |row|
+        data << row.to_hash
+      end
+      return data.reject { |h| h.empty? }
+    end
+
+  end
+
+
   class App < Sinatra::Base
     set :app_file, __FILE__
 
-    attr_reader :cache_server
-
     def initialize(*args)
       super
-      @cache_server = Dalli::Client.new "127.0.0.1:11211", :expires_in => 60
+      Api.cache_server = Dalli::Client.new "127.0.0.1:11211"
       @wu = WeatherUnderground.new
       @nws = NationalWeatherService.new
     end
@@ -32,12 +114,12 @@ module ZeroWx
     end
 
     get "/" do
-      @conditions = cache("current_conditions", 60) { @wu.current_conditions("KCOBOULD29") }
-      @forecast = cache("forecast", 300) { @wu.forecast("80305") }
-      @history = cache("history", 60) { @wu.daily_history("KCOBOULD29") }
-      @text_forecast = cache("nwsforecast", 300) { @nws.forecast.text_forecast }
+      @conditions = @wu.current_conditions "KCOBOULD29"
+      @forecast = @wu.forecast "80305"
+      @history = @wu.daily_history "KCOBOULD29"
+      @text_forecast = @nws.forecast.text_forecast
 
-      hourly = cache("nwshourly", 300) { @nws.hourly_forecast }
+      hourly = @nws.hourly_forecast
 
       now = Time.now
 
@@ -110,97 +192,21 @@ module ZeroWx
       erb :index
     end
 
-    def cache(key, ttl)
-      cache_server.fetch(key, ttl) do
-        yield
-      end
-    end
-
-  end
-
-  class Api
-    Error = Class.new(StandardError)
-
-    class << self
-      attr_accessor :base_url
-    end
-
-    attr_reader :http
-
-    def initialize
-      @http = Patron::Session.new
-      http.timeout = 30
-      http.base_url = self.class.base_url or raise "no base url!"
-    end
-
-    def get(url, params)
-      response = http.get url, params
-      if response.status >= 300
-        raise Error, "HTTP #{response.code}\n#{response.body}"
-      else
-        # puts "*** #{url} #{params.inspect} ***"
-        # puts response.body
-        return response
-      end
-    end
-
-    def hash_get(url, params={})
-      response = get url, params
-      doc = Nokogiri::XML.parse(response.body)
-      return hashify(doc)
-    end
-
-    def xml_get(url, params={})
-      response = get url, params
-      return Nokogiri::XML.parse(response.body)
-    end
-
-    def csv_get(url, params={})
-      response = get url, params
-      return csv_data(response.body)
-    end
-
-    def hashify(xml)
-      h = {}
-      if xml.element_children.empty?
-        return xml.content
-      else
-        xml.element_children.each do |child|
-          if h[child.name]
-            h[child.name] = [h[child.name]] unless h[child.name].kind_of?(Array)
-            h[child.name].push hashify(child)
-          else
-            h[child.name] = hashify child
-          end
-        end
-        return h
-      end
-    end
-
-    def csv_data(doc)
-      data = []
-      doc = doc.gsub(/<[^>]+>/, "")
-      FasterCSV.parse(doc, :headers => true, :return_headers => false) do |row|
-        data << row.to_hash
-      end
-      return data.reject { |h| h.empty? }
-    end
-
   end
 
   class WeatherUnderground < Api
     self.base_url = "http://api.wunderground.com"
 
     def current_conditions(station_id)
-      hash_get("/weatherstation/WXCurrentObXML.asp?ID=#{station_id}")["current_observation"]
+      hash_get("/weatherstation/WXCurrentObXML.asp?ID=#{station_id}", :cache => 60)["current_observation"]
     end
 
     def forecast(query)
-      hash_get("/auto/wui/geo/ForecastXML/index.xml?query=#{query}")["forecast"]
+      hash_get("/auto/wui/geo/ForecastXML/index.xml?query=#{query}", :cache => 900)["forecast"]
     end
 
     def daily_history(station_id)
-      csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1"
+      csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1", :cache => 60
     end
   end
 
@@ -287,12 +293,12 @@ module ZeroWx
     end
 
     def hourly_forecast
-      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=digitalDWML"
+      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=digitalDWML", :cache => 900
       return HourlyForecast.new(doc)
     end
 
     def forecast
-      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=dwml"
+      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=dwml", :cache => 900
       return Forecast.new(doc)
     end
 
