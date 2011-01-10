@@ -17,11 +17,11 @@ module ZeroWx
   class App < Sinatra::Base
     set :app_file, __FILE__
 
-    attr_reader :wu
+    attr_reader :cache_server
 
     def initialize(*args)
       super
-      Cache.server = Dalli::Client.new "127.0.0.1:11211", :expires_in => 60
+      @cache_server = Dalli::Client.new "127.0.0.1:11211", :expires_in => 60
       @wu = WeatherUnderground.new
       @nws = NationalWeatherService.new
     end
@@ -32,12 +32,12 @@ module ZeroWx
     end
 
     get "/" do
-      @conditions = @wu.current_conditions("KCOBOULD29")
-      @forecast = @wu.forecast("80305")
-      @history = @wu.daily_history("KCOBOULD29")
-      @text_forecast = @nws.forecast.text_forecast
+      @conditions = cache("current_conditions", 60) { @wu.current_conditions("KCOBOULD29") }
+      @forecast = cache("forecast", 300) { @wu.forecast("80305") }
+      @history = cache("history", 60) { @wu.daily_history("KCOBOULD29") }
+      @text_forecast = cache("nwsforecast", 300) { @nws.forecast.text_forecast }
 
-      hourly = @nws.hourly_forecast
+      hourly = cache("nwshourly", 300) { @nws.hourly_forecast }
 
       now = Time.now
 
@@ -109,30 +109,16 @@ module ZeroWx
 
       erb :index
     end
-  end
 
-  module Cache
-    class << self
-      attr_accessor :server
-    end
-
-    def cache(method_name, ttl)
-      method = instance_method(method_name)
-      define_method method_name do |*args|
-        # key = ([method_name] + args).map {|v| v.to_s }.join(":")
-        key = "#{method_name}:#{args.hash}"
-        puts "*** retrieving cached value for #{method_name} #{args.inspect}"
-        return Cache.server.fetch(key, ttl) do
-          puts "*** generating cached value for #{method_name} #{args.inspect}"
-          method.bind(self).call(*args)
-        end
+    def cache(key, ttl)
+      cache_server.fetch(key, ttl) do
+        yield
       end
     end
+
   end
 
   class Api
-    extend Cache
-
     Error = Class.new(StandardError)
 
     class << self
@@ -208,17 +194,14 @@ module ZeroWx
     def current_conditions(station_id)
       hash_get("/weatherstation/WXCurrentObXML.asp?ID=#{station_id}")["current_observation"]
     end
-    cache :current_conditions, 60
 
     def forecast(query)
       hash_get("/auto/wui/geo/ForecastXML/index.xml?query=#{query}")["forecast"]
     end
-    cache :forecast, 60
 
     def daily_history(station_id)
       csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1"
     end
-    cache :daily_history, 60
   end
 
   class NationalWeatherService < Api
