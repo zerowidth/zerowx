@@ -96,6 +96,12 @@ button {  width: auto; overflow: visible; }
   padding: 5px 10px;
 }
 
+.header {
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1px solid #888;
+}
+
 .station_name {
   font-size: 0.923em;
   float: left;
@@ -109,8 +115,15 @@ button {  width: auto; overflow: visible; }
 
 
 .graph {
-  width: 195px;
+  width: 193px;
+  height: 60px;
   float: left;
+}
+
+.graph .loading {
+  text-align: center;
+  width: 100%;
+  margin-top: 23px;
 }
 
 .graph .predictions {
@@ -124,18 +137,23 @@ button {  width: auto; overflow: visible; }
 
 
 .current_conditions .temperature {
+  color: #00F;
   float: left;
+  margin-left: 5px;
   font-size: 1.538em; /* 20px */
   font-weight: bold;
   margin-top: 2px;
 }
 
 .current_conditions .wind {
+  color: #080;
   float: left;
+  margin-left: 5px;
 }
 
 .current_conditions .conditions {
   float: left;
+  margin-left: 5px;
 }
 
 
@@ -156,7 +174,10 @@ button {  width: auto; overflow: visible; }
 
 
 .forecast {
-  margin-top: 5px;
+}
+
+.forecast p {
+  margin-top: 0.75em;
 }
 
 

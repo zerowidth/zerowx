@@ -10,6 +10,7 @@
     </div>
 
     <div class="graph">
+      <div class="loading">Loading...</div>
       <div class="clearfix">
         <div class="predictions"></div>
         <div class="gust_history"></div>
@@ -58,6 +59,8 @@ head.ready(function() {
   <% max_t = (@temp_history + @temperatures).compact.max + 5 %>
   <% min_w = (@wind_history + @wind_speeds + @wind_gusts).compact.min %>
   <% max_w = (@wind_history + @wind_speeds + @wind_gusts).compact.max + 5 %>
+
+  $('.graph .loading').hide();
 
   // draw night/day
   $('.predictions').sparkline(
@@ -128,7 +131,6 @@ head.ready(function() {
       composite: true,
       chartRangeMin: <%= min_w %>,
       chartRangeMax: <%= max_w %>,
-      // lineColor: '#880',
       lineColor: '#0F0',
       minSpotColor: '#088',
       maxSpotColor: '#088',
