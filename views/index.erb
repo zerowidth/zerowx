@@ -1,37 +1,51 @@
-<div class="station">
-  <div class="header clearfix">
-    <div class="location"><%= @conditions["location"]["full"] %></div>
-    <div class="updated_at">
-      <%= Time.parse(@conditions["observation_time_rfc822"]).strftime("%l:%M %P") %>
+<div class="location">
+  <div class="header">Boulder, CO</div>
+
+  <div class="station">
+    <div class="station_id clearfix">
+      <div class="station_name"><%= @conditions["location"]["full"] %></div>
+      <div class="updated_at">
+        <%= Time.parse(@conditions["observation_time_rfc822"]).strftime("%l:%M %P") %>
+      </div>
     </div>
-  </div>
 
-  <div class="clearfix">
+    <div class="graph">
+      <div class="clearfix">
+        <div class="predictions"></div>
+        <div class="gust_history"></div>
+        <div class="wind_history"></div>
+        <div class="temp_history"></div>
+      </div>
+      <div class="clearfix">
+        <div class="precipitation"></div>
+      </div>
+    </div>
 
-    <div class="right">
+    <div class="current_conditions clearfix">
+      <div class="temperature">
+        <%= @conditions["temp_f"] %>º
+      </div>
+
       <div class="wind">
-      <%= @conditions["wind_mph"].to_i %> mph /
-      <%= @conditions["wind_gust_mph"].to_i %> gust
+        <%= @conditions["wind_mph"].to_i %> mph / <%= @conditions["wind_gust_mph"].to_i %> gust
       </div>
-      <div class="current_conditions">
-      <%= @forecast["simpleforecast"]["forecastday"].first["conditions"] %>
+
+      <div class="conditions">
+        <%= @forecast["simpleforecast"]["forecastday"].first["conditions"] %>
       </div>
     </div>
 
-    <div class="temperature"><%= @conditions["temp_f"] %>º</div>
-
   </div>
 
-</div>
+  <div class="forecast">
+    <% @text_forecast[0..2].each do |day| %>
+    <p>
+      <strong><%= day.first %></strong>
+      <%= day.last %>
+    </p>
+    <% end %>
+  </div>
 
-<div class="clearfix">
-  <div class="hourly"></div>
-  <div class="gust_history"></div>
-  <div class="wind_history"></div>
-  <div class="temp_history"></div>
-</div>
-<div class="clearfix">
-  <div class="precipitation"></div>
 </div>
 
 <script>
@@ -42,7 +56,7 @@ head.ready(function() {
   <% max_w = (@wind_history + @wind_speeds + @wind_gusts).compact.max + 5 %>
 
   // draw night/day
-  $('.hourly').sparkline(
+  $('.predictions').sparkline(
     <%= @night_day.to_json %>,
     {
       height: 50,
@@ -56,7 +70,7 @@ head.ready(function() {
   );
 
   // hour marks
-  $('.hourly').sparkline(
+  $('.predictions').sparkline(
     <%= @hour_marks.to_json %>,
     {
       type: 'bar',
@@ -70,7 +84,7 @@ head.ready(function() {
   );
 
   // cloud cover predictions
-  $('.hourly').sparkline(
+  $('.predictions').sparkline(
     <%= @cloud_cover.to_json %>,
     {
       composite: true,
@@ -86,7 +100,7 @@ head.ready(function() {
   );
 
   // wind gust predictions
-  $('.hourly').sparkline(
+  $('.predictions').sparkline(
     <%= @wind_gusts.to_json %>,
     {
       composite: true,
@@ -102,7 +116,7 @@ head.ready(function() {
   );
 
   // wind speed predictions
-  $('.hourly').sparkline(
+  $('.predictions').sparkline(
     <%= @wind_speeds.to_json %>,
     {
       defaultPixelsPerValue: 4,
@@ -119,7 +133,7 @@ head.ready(function() {
   );
 
   // temperature predictions
-  $('.hourly').sparkline(
+  $('.predictions').sparkline(
     <%= @temperatures.to_json %>,
     {
       defaultPixelsPerValue: 4,
@@ -135,7 +149,7 @@ head.ready(function() {
   );
 
   // current time marker
-  // $('.hourly').sparkline(
+  // $('.predictions').sparkline(
   //   <%= @current_time.to_json %>,
   //   {
   //     type: 'bar',

@@ -35,6 +35,7 @@ module ZeroWx
       @conditions = @wu.current_conditions("KCOBOULD29")
       @forecast = @wu.forecast("80305")
       @history = @wu.daily_history("KCOBOULD29")
+      @text_forecast = @nws.forecast.text_forecast
 
       hourly = @nws.hourly_forecast
 
@@ -284,12 +285,32 @@ module ZeroWx
         end
         @cloud_cover
       end
+    end
+
+    class Forecast
+
+      attr_reader :doc
+
+      def initialize(doc)
+        @doc = doc
+      end
+
+      def text_forecast
+        names = doc.xpath("//time-layout/layout-key[.='k-p12h-n14-1']/../start-valid-time").map { |x| x['period-name'] }
+        text = doc.xpath("//wordedForecast/text").map { |t| t.content }
+        names.zip(text)
+      end
 
     end
 
     def hourly_forecast
       doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=digitalDWML"
       return HourlyForecast.new(doc)
+    end
+
+    def forecast
+      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=dwml"
+      return Forecast.new(doc)
     end
 
   end
