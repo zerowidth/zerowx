@@ -113,33 +113,50 @@ button {  width: auto; overflow: visible; }
   float: left;
 }
 
-.predictions {
+.graph .predictions {
   float: left;
 }
 
-.temp_history, .wind_history, .gust_history {
+.graph .temp_history, .graph .wind_history, .graph .gust_history {
   float: left;
   position: absolute;
 }
 
 
-.temperature {
+.current_conditions .temperature {
   float: left;
   font-size: 1.538em; /* 20px */
   font-weight: bold;
   margin-top: 2px;
 }
 
-.wind {
+.current_conditions .wind {
   float: left;
 }
 
-.conditions {
+.current_conditions .conditions {
   float: left;
+}
+
+
+
+.graph_legend {
+  font-size: 0.923em; /* 12px */
+}
+
+.graph_legend span.temp {
+  font-weight: bold;
+  color: #808;
+}
+
+.graph_legend span.wind {
+  font-weight: bold;
+  color: #088;
 }
 
 
 .forecast {
+  margin-top: 5px;
 }
 
 

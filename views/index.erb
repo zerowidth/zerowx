@@ -25,14 +25,18 @@
       <div class="temperature">
         <%= @conditions["temp_f"] %>º
       </div>
-
       <div class="wind">
         <%= @conditions["wind_mph"].to_i %> mph / <%= @conditions["wind_gust_mph"].to_i %> gust
       </div>
-
       <div class="conditions">
         <%= @forecast["simpleforecast"]["forecastday"].first["conditions"] %>
       </div>
+    </div>
+
+    <div class="graph_legend">
+      Predicted
+      <span class="temp">temp</span> <%= @temperatures.compact.min %>º / <%= @temperatures.compact.max %>º
+      <span class="wind">wind</span> <%= @wind_speeds.compact.min %> mph / <%= @wind_speeds.compact.max %> mph
     </div>
 
   </div>
@@ -126,8 +130,8 @@ head.ready(function() {
       chartRangeMax: <%= max_w %>,
       // lineColor: '#880',
       lineColor: '#0F0',
-      // minSpotColor: false,
-      // maxSpotColor: false,
+      minSpotColor: '#088',
+      maxSpotColor: '#088',
       spotColor: false
     }
   );
@@ -142,8 +146,8 @@ head.ready(function() {
       chartRangeMin: <%= min_t %>,
       chartRangeMax: <%= max_t %>,
       lineColor: '#88F',
-      // minSpotColor: false,
-      // maxSpotColor: false,
+      minSpotColor: '#808',
+      maxSpotColor: '#808',
       spotColor: false
     }
   );
