@@ -39,14 +39,20 @@ module ZeroWx
       hourly = @nws.hourly_forecast
 
       now = Time.now
+
       current_hour = Time.mktime(now.year, now.month, now.day, now.hour)
       hours = (-12..36).to_a.map { |o| current_hour + (o * 60 * 60) }
       times = -12.step(36, 0.25).to_a.map { |t| current_hour + (t * 60 * 60) }
 
-      # offset = hourly.times.index { |t| t >= hours.first && t <= hours.last }
-      # puts "offset is #{offset}"
-      # @temperatures = hourly.temperatures[offset..(offset + hours.size)]
-      @temperatures = hours.map { |t| hourly.temp[t] }
+      @temperatures = hours.map { |t| t < now ? nil : hourly.temp[t] }
+      @wind_speeds = hours.map { |t| t < now ? nil : hourly.wind[t] }
+      @wind_gusts = hours.map { |t| t < now ? nil : hourly.gust[t] }
+      @precipitation = hours.map { |t| t < now ? nil : hourly.precip[t] }
+      @cloud_cover = hours.map { |t| t < now ? nil : hourly.cloud_cover[t] }
+      @current_time = times.map do |t|
+        offset = now.to_i - t.to_i
+        (offset >= 0 && offset < 15 * 60) ? 1 : nil
+      end
 
       sunrise = @forecast["moon_phase"]["sunrise"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunrise"]["minute"].to_i
       sunset = @forecast["moon_phase"]["sunset"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunset"]["minute"].to_i
@@ -74,7 +80,29 @@ module ZeroWx
         end
       end
       # remove trailing nils:
-      @temp_history.pop while @temp_history.size > 0 && !@temp_history.last
+      @temp_history.pop while @temp_history.size > 0 && @temp_history.last.nil?
+
+      @wind_history = times.map do |t|
+        time_range = (t.to_i - 15*30)..(t.to_i + 15 * 30)
+        speeds = @history.select { |h| time_range.include? h["Time"].to_i }.map { |h| h["WindSpeedMPH"].to_i }
+        if speeds.empty?
+          nil
+        else
+          speeds.inject(0) { |m,v| m + v } / speeds.size.to_f # average temperature for this time range
+        end
+      end
+      @wind_history.pop while @wind_history.size > 0 && @wind_history.last.nil?
+
+      @gust_history = times.map do |t|
+        time_range = (t.to_i - 15*30)..(t.to_i + 15 * 30)
+        speeds = @history.select { |h| time_range.include? h["Time"].to_i }.map { |h| h["WindSpeedGustMPH"].to_i }
+        if speeds.empty?
+          nil
+        else
+          speeds.inject(0) { |m,v| m + v } / speeds.size.to_f # average temperature for this time range
+        end
+      end
+      @gust_history.pop while @gust_history.size > 0 && @gust_history.last.nil?
 
       puts "-" * 80
 
@@ -196,19 +224,11 @@ module ZeroWx
     self.base_url = "http://forecast.weather.gov"
 
     class HourlyForecast
+
       attr_reader :doc
+
       def initialize(doc)
         @doc = doc
-      end
-
-      def temperatures
-        return doc.xpath("/dwml/data/parameters/temperature[@type='hourly']/value").map do |temp|
-          if temp.content.empty?
-            nil
-          else
-            temp.content.to_i
-          end
-        end
       end
 
       def times
@@ -216,7 +236,53 @@ module ZeroWx
       end
 
       def temp
-        @temp ||= Hash[times.zip(temperatures)]
+        unless @temp
+          temps = doc.xpath("/dwml/data/parameters/temperature[@type='hourly']/value").map do |temp|
+            temp.content.empty? ? nil : temp.content.to_i
+          end
+          @temp = Hash[times.zip(temps)]
+        end
+        @temp
+      end
+
+      def wind
+        unless @wind
+          winds = doc.xpath("/dwml/data/parameters/wind-speed[@type='sustained']/value").map do |speed|
+            speed.content.empty? ? nil : speed.content.to_i
+          end
+          @wind = Hash[times.zip(winds)]
+        end
+        @wind
+      end
+
+      def gust
+        unless @gust
+          gusts = doc.xpath("/dwml/data/parameters/wind-speed[@type='gust']/value").map do |speed|
+            speed.content.empty? ? nil : speed.content.to_i
+          end
+          @gust = Hash[times.zip(gusts)]
+        end
+        @gust
+      end
+
+      def precip
+        unless @precip
+          precipitation = doc.xpath("/dwml/data/parameters/probability-of-precipitation/value").map do |prob|
+            prob.content.empty? || prob.content.to_i == 0 ? nil : prob.content.to_i
+          end
+          @precip = Hash[times.zip(precipitation)]
+        end
+        @precip
+      end
+
+      def cloud_cover
+        unless @cloud_cover
+          coverage = doc.xpath("/dwml/data/parameters/cloud-amount/value").map do |prob|
+            prob.content.empty? || prob.content.to_i == 0 ? nil : prob.content.to_i
+          end
+          @cloud_cover = Hash[times.zip(coverage)]
+        end
+        @cloud_cover
       end
 
     end

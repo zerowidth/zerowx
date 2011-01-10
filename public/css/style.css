@@ -148,11 +148,22 @@ box-shadow:         inset 0px 1px 1px #ffffff,
   
 }
 
+/*
 .hourly, .history {
   position: absolute;
   left: 0;
 }
+*/
 
+.hourly {
+  float: left;
+}
+
+.temp_history, .wind_history, .gust_history {
+  float: left;
+  position: absolute;
+  left: 0;
+}
 
 /* ***** */
 

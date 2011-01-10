@@ -24,13 +24,24 @@
 
 </div>
 
-<div class="hourly"></div>
-<div class="history"></div>
+<div class="clearfix">
+  <div class="hourly"></div>
+  <div class="gust_history"></div>
+  <div class="wind_history"></div>
+  <div class="temp_history"></div>
+</div>
+<div class="clearfix">
+  <div class="precipitation"></div>
+</div>
 
 <script>
 head.ready(function() {
   <% min_t = (@temp_history + @temperatures).compact.min - 5 %>
   <% max_t = (@temp_history + @temperatures).compact.max + 5 %>
+  <% min_w = (@wind_history + @wind_speeds + @wind_gusts).compact.min %>
+  <% max_w = (@wind_history + @wind_speeds + @wind_gusts).compact.max + 5 %>
+
+  // draw night/day
   $('.hourly').sparkline(
     <%= @night_day.to_json %>,
     {
@@ -43,10 +54,11 @@ head.ready(function() {
       chartRangeMax: 1
     }
   );
+
+  // hour marks
   $('.hourly').sparkline(
     <%= @hour_marks.to_json %>,
     {
-      height: 50,
       type: 'bar',
       composite: true,
       barSpacing: 3,
@@ -57,34 +69,190 @@ head.ready(function() {
     }
   );
 
+  // cloud cover predictions
   $('.hourly').sparkline(
-    <%= @temperatures.to_json %>,
+    <%= @cloud_cover.to_json %>,
     {
-      height: 50,
-      defaultPixelsPerValue: 4,
-      fillColor: false,
       composite: true,
-      chartRangeMin: <%= min_t %>,
-      chartRangeMax: <%= max_t %>,
-      lineColor: '#AAA',
+      defaultPixelsPerValue: 1,
+      fillColor: false,
+      chartRangeMin: 0,
+      chartRangeMax: 100,
+      lineColor: '#888',
       minSpotColor: false,
       maxSpotColor: false,
       spotColor: false
     }
   );
-  $('.history').sparkline(
-    <%= @temp_history.to_json %>,
+
+  // wind gust predictions
+  $('.hourly').sparkline(
+    <%= @wind_gusts.to_json %>,
     {
-      height: 50,
       composite: true,
+      defaultPixelsPerValue: 4,
       fillColor: false,
-      defaultPixelsPerValue: 1,
+      chartRangeMin: <%= min_w %>,
+      chartRangeMax: <%= max_w %>,
+      lineColor: '#8F8',
+      minSpotColor: false,
+      maxSpotColor: false,
+      spotColor: false
+    }
+  );
+
+  // wind speed predictions
+  $('.hourly').sparkline(
+    <%= @wind_speeds.to_json %>,
+    {
+      defaultPixelsPerValue: 4,
+      fillColor: false,
+      composite: true,
+      chartRangeMin: <%= min_w %>,
+      chartRangeMax: <%= max_w %>,
+      // lineColor: '#880',
+      lineColor: '#0F0',
+      // minSpotColor: false,
+      // maxSpotColor: false,
+      spotColor: false
+    }
+  );
+
+  // temperature predictions
+  $('.hourly').sparkline(
+    <%= @temperatures.to_json %>,
+    {
+      defaultPixelsPerValue: 4,
+      fillColor: false,
+      composite: true,
       chartRangeMin: <%= min_t %>,
       chartRangeMax: <%= max_t %>,
+      lineColor: '#88F',
+      // minSpotColor: false,
+      // maxSpotColor: false,
+      spotColor: false
+    }
+  );
+
+  // current time marker
+  // $('.hourly').sparkline(
+  //   <%= @current_time.to_json %>,
+  //   {
+  //     type: 'bar',
+  //     composite: true,
+  //     barSpacing: 0,
+  //     barWidth: 1,
+  //     barColor: '#F88',
+  //     chartRangeMin: 0,
+  //     chartRangeMax: 1
+  //   }
+  // );
+
+  // wind gust history
+  $('.gust_history').sparkline(
+    <%= @gust_history.to_json %>,
+    {
+      height: 50,
+      fillColor: false,
+      defaultPixelsPerValue: 1,
+      chartRangeMin: <%= min_w %>,
+      chartRangeMax: <%= max_w %>,
+      lineColor: '#4C4',
+      lineWidth: 1,
+      spotColor: false,
+      minSpotColor: false,
+      maxSpotColor: false
+    }
+  );
+
+  // wind speed history
+  $('.wind_history').sparkline(
+    <%= @wind_history.to_json %>,
+    {
+      height: 50,
+      fillColor: false,
+      defaultPixelsPerValue: 1,
+      chartRangeMin: <%= min_w %>,
+      chartRangeMax: <%= max_w %>,
+      lineColor: '#080',
+      lineWidth: 1.5,
       spotColor: '#F00',
       minSpotColor: false,
       maxSpotColor: false
     }
   );
+
+  // temperature history
+  $('.temp_history').sparkline(
+    <%= @temp_history.to_json %>,
+    {
+      height: 50,
+      fillColor: false,
+      defaultPixelsPerValue: 1,
+      chartRangeMin: <%= min_t %>,
+      chartRangeMax: <%= max_t %>,
+      lineWidth: 1.5,
+      spotColor: '#F00',
+      minSpotColor: false,
+      maxSpotColor: false
+    }
+  );
+
+  // night/day for precip graph
+  $('.precipitation').sparkline(
+    <%= @night_day.to_json %>,
+    {
+      height: 10,
+      type: 'bar',
+      barSpacing: 0,
+      barWidth: 1,
+      barColor: '#EEE',
+      chartRangeMin: 0,
+      chartRangeMax: 1
+    }
+  );
+
+  // hour marks for precip graph
+  $('.precipitation').sparkline(
+    <%= @hour_marks.to_json %>,
+    {
+      type: 'bar',
+      composite: true,
+      barSpacing: 3,
+      barWidth: 1,
+      barColor: '#DDD',
+      chartRangeMin: 0,
+      chartRangeMax: 1
+    }
+  );
+
+  // precipitation prediction
+  $('.precipitation').sparkline(
+    <%= @precipitation.to_json %>,
+    {
+      type: 'bar',
+      composite: true,
+      barSpacing: 1,
+      barWidth: 3,
+      barColor: '#8CF',
+      chartRangeMin: 0,
+      chartRangeMax: 100
+    }
+  );
+
+  // current time marker
+  // $('.precipitation').sparkline(
+  //   <%= @current_time.to_json %>,
+  //   {
+  //     type: 'bar',
+  //     composite: true,
+  //     barSpacing: 0,
+  //     barWidth: 1,
+  //     barColor: '#F88',
+  //     chartRangeMin: 0,
+  //     chartRangeMax: 1
+  //   }
+  // );
+
 });
 </script>
