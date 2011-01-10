@@ -52,7 +52,7 @@ module ZeroWx
       sunset = @forecast["moon_phase"]["sunset"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunset"]["minute"].to_i
       daytime = sunrise..sunset
       @night_day = times.map do |t|
-        daytime.include?(t.hour * 60 + t.min) ? 1 : nil
+        daytime.include?(t.hour * 60 + t.min) ? nil : 1
       end
       @hour_marks = hours.map { |t| t.hour % 6 == 0 ? 1 : nil }
 
