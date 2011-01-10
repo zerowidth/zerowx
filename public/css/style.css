@@ -181,6 +181,24 @@ button {  width: auto; overflow: visible; }
 }
 
 
+footer {
+  width: 320px;
+  max-width: 640px;
+  min-width: 320px;
+
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+
+  padding: 5px 10px;
+
+  text-align: center;
+}
+
+footer a img {
+  border: 0;
+}
+
 
 /* ***** */
 
