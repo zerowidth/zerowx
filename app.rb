@@ -292,7 +292,8 @@ module ZeroWx
       end
 
       def text_forecast
-        names = doc.xpath("//time-layout/layout-key[.='k-p12h-n14-1']/../start-valid-time").map { |x| x['period-name'] }
+        time_layout = doc.xpath("//time-layout").detect { |l| l.xpath("layout-key").first.content =~ /k-p12h-n1\d-\d/ }
+        names = time_layout.xpath("start-valid-time").map { |x| x['period-name'] }
         text = doc.xpath("//wordedForecast/text").map { |t| t.content }
         names.zip(text)
       end
