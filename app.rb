@@ -206,7 +206,14 @@ module ZeroWx
     end
 
     def daily_history(station_id)
-      csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1", :cache => 60
+      csv = csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1", :cache => 60
+      now = Time.now
+      if now.hour < 12
+        yesterday = now - 12 * 60 * 60
+        older = csv_get "/weatherstation/WXDailyHistory.asp?ID=#{station_id}&format=1&year=#{yesterday.year}&month=#{yesterday.month}&day=#{yesterday.day}", :cache => 60
+        csv = older + csv
+      end
+      return csv
     end
   end
 
