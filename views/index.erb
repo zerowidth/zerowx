@@ -26,18 +26,12 @@
       <div class="temperature">
         <%= @conditions["temp_f"] %>º
       </div>
-      <div class="wind">
-        <%= @conditions["wind_mph"].to_i %> mph / <%= @conditions["wind_gust_mph"].to_i %> gust
-      </div>
       <div class="conditions">
         <%= @forecast["simpleforecast"]["forecastday"].first["conditions"] %>
       </div>
-    </div>
-
-    <div class="graph_legend">
-      Predicted
-      <span class="temp">temp</span> <%= @temperatures.compact.min %>º / <%= @temperatures.compact.max %>º
-      <span class="wind">wind</span> <%= @wind_speeds.compact.min %> mph / <%= @wind_speeds.compact.max %> mph
+      <div class="wind">
+        <%= @conditions["wind_mph"].to_i %> mph / <%= @conditions["wind_gust_mph"].to_i %> gust
+      </div>
     </div>
 
   </div>
@@ -65,7 +59,8 @@ head.ready(function() {
   $('.predictions').sparkline(
     <%= @night_day.to_json %>,
     {
-      height: 50,
+      height: 60,
+      width: '100%',
       type: 'bar',
       barSpacing: 0,
       barWidth: 1,
@@ -81,7 +76,7 @@ head.ready(function() {
     {
       type: 'bar',
       composite: true,
-      barSpacing: 3,
+      barSpacing: 5,
       barWidth: 1,
       barColor: '#DDD',
       chartRangeMin: 0,
@@ -113,9 +108,9 @@ head.ready(function() {
       chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#8F8',
+      spotColor: false,
       minSpotColor: false,
-      maxSpotColor: false,
-      spotColor: false
+      maxSpotColor: false
     }
   );
 
@@ -129,9 +124,9 @@ head.ready(function() {
       chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#0F0',
-      minSpotColor: '#088',
-      maxSpotColor: '#088',
-      spotColor: false
+      spotColor: false,
+      minSpotColor: false,
+      maxSpotColor: false
     }
   );
 
@@ -169,7 +164,7 @@ head.ready(function() {
   $('.gust_history').sparkline(
     <%= @gust_history.to_json %>,
     {
-      height: 50,
+      height: 60,
       fillColor: false,
       defaultPixelsPerValue: 1,
       chartRangeMin: 0,
@@ -186,7 +181,7 @@ head.ready(function() {
   $('.wind_history').sparkline(
     <%= @wind_history.to_json %>,
     {
-      height: 50,
+      height: 60,
       fillColor: false,
       defaultPixelsPerValue: 1,
       chartRangeMin: 0,
@@ -203,7 +198,7 @@ head.ready(function() {
   $('.temp_history').sparkline(
     <%= @temp_history.to_json %>,
     {
-      height: 50,
+      height: 60,
       fillColor: false,
       defaultPixelsPerValue: 1,
       chartRangeMin: <%= min_t %>,
@@ -235,7 +230,7 @@ head.ready(function() {
     {
       type: 'bar',
       composite: true,
-      barSpacing: 3,
+      barSpacing: 5,
       barWidth: 1,
       barColor: '#DDD',
       chartRangeMin: 0,
@@ -250,7 +245,7 @@ head.ready(function() {
       type: 'bar',
       composite: true,
       barSpacing: 1,
-      barWidth: 3,
+      barWidth: 5,
       barColor: '#AAA',
       chartRangeMin: 0,
       chartRangeMax: 100
@@ -264,7 +259,7 @@ head.ready(function() {
       type: 'bar',
       composite: true,
       barSpacing: 1,
-      barWidth: 3,
+      barWidth: 5,
       barColor: '#8CF',
       chartRangeMin: 0,
       chartRangeMax: 100

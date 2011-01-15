@@ -124,17 +124,17 @@ module ZeroWx
       now = Time.now
 
       current_hour = Time.mktime(now.year, now.month, now.day, now.hour)
-      hours = (-12..36).to_a.map { |o| current_hour + (o * 60 * 60) }
-      times = -12.step(36, 0.25).to_a.map { |t| current_hour + (t * 60 * 60) }
+      hours = (-12..38).to_a.map { |o| current_hour + (o * 60 * 60) }
+      times = -72.step(228).to_a.map { |t| current_hour + (t * 10 * 60) }
 
       @temperatures = hours.map { |t| t < now ? nil : hourly.temp[t] }
       @wind_speeds = hours.map { |t| t < now ? nil : hourly.wind[t] }
       @wind_gusts = hours.map { |t| t < now ? nil : hourly.gust[t] }
-      @precipitation = hours.map { |t| t < now ? nil : hourly.precip[t] }
-      @cloud_cover = hours.map { |t| t < now ? nil : hourly.cloud_cover[t] }
+      @precipitation = hours[0...(hours.size-1)].map { |t| t < now ? nil : hourly.precip[t] }
+      @cloud_cover = hours[0...(hours.size-1)].map { |t| t < now ? nil : hourly.cloud_cover[t] }
       @current_time = times.map do |t|
         offset = now.to_i - t.to_i
-        (offset >= 0 && offset < 15 * 60) ? 1 : nil
+        (offset >= 0 && offset < 10 * 60) ? 1 : nil
       end
 
       sunrise = @forecast["moon_phase"]["sunrise"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunrise"]["minute"].to_i
@@ -147,14 +147,14 @@ module ZeroWx
 
       now = Time.now
       start_time = Time.mktime(now.year, now.month, now.day)
-      end_time = Time.mktime(now.year, now.month, now.day, now.hour, (now.min / 15.0).floor * 15)
+      end_time = Time.mktime(now.year, now.month, now.day, now.hour, (now.min / 10.0).floor * 10)
 
       @history.each do |h|
         h["Time"] = Time.parse(h["Time"])
       end
 
       @temp_history = times.map do |t|
-        time_range = (t.to_i - 15*30)..(t.to_i + 15 * 30)
+        time_range = (t.to_i - 10 * 30)..(t.to_i + 10 * 30)
         temps = @history.select { |h| time_range.include? h["Time"].to_i }.map { |h| h["TemperatureF"].to_i }
         if temps.empty?
           nil
@@ -166,7 +166,7 @@ module ZeroWx
       @temp_history.pop while @temp_history.size > 0 && @temp_history.last.nil?
 
       @wind_history = times.map do |t|
-        time_range = (t.to_i - 15*30)..(t.to_i + 15 * 30)
+        time_range = (t.to_i - 10*30)..(t.to_i + 10 * 30)
         speeds = @history.select { |h| time_range.include? h["Time"].to_i }.map { |h| h["WindSpeedMPH"].to_i }
         if speeds.empty?
           nil
@@ -177,7 +177,7 @@ module ZeroWx
       @wind_history.pop while @wind_history.size > 0 && @wind_history.last.nil?
 
       @gust_history = times.map do |t|
-        time_range = (t.to_i - 15*30)..(t.to_i + 15 * 30)
+        time_range = (t.to_i - 10*30)..(t.to_i + 10 * 30)
         speeds = @history.select { |h| time_range.include? h["Time"].to_i }.map { |h| h["WindSpeedGustMPH"].to_i }
         if speeds.empty?
           nil

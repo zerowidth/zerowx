@@ -115,9 +115,8 @@ button {  width: auto; overflow: visible; }
 
 
 .graph {
-  width: 193px;
-  height: 60px;
-  float: left;
+  height: 70px;
+  width: 100%;
 }
 
 .graph .loading {
@@ -139,39 +138,22 @@ button {  width: auto; overflow: visible; }
 .current_conditions .temperature {
   color: #00F;
   float: left;
-  margin-left: 5px;
   font-size: 1.538em; /* 20px */
   font-weight: bold;
   margin-top: 2px;
 }
 
 .current_conditions .wind {
+  width: 100%;
   color: #080;
-  float: left;
-  margin-left: 5px;
+  text-align: center;
+  padding-top: 4px;
 }
 
 .current_conditions .conditions {
-  float: left;
-  margin-left: 5px;
+  float: right;
+  margin-top: 4px;
 }
-
-
-
-.graph_legend {
-  font-size: 0.923em; /* 12px */
-}
-
-.graph_legend span.temp {
-  font-weight: bold;
-  color: #808;
-}
-
-.graph_legend span.wind {
-  font-weight: bold;
-  color: #088;
-}
-
 
 .forecast {
 }
