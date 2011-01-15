@@ -18,7 +18,7 @@
         <div class="temp_history"></div>
       </div>
       <div class="clearfix">
-        <div class="precipitation"></div>
+        <div class="sky"></div>
       </div>
     </div>
 
@@ -57,7 +57,6 @@
 head.ready(function() {
   <% min_t = (@temp_history + @temperatures).compact.min - 5 %>
   <% max_t = (@temp_history + @temperatures).compact.max + 5 %>
-  <% min_w = (@wind_history + @wind_speeds + @wind_gusts).compact.min %>
   <% max_w = (@wind_history + @wind_speeds + @wind_gusts).compact.max + 5 %>
 
   $('.graph .loading').hide();
@@ -90,16 +89,14 @@ head.ready(function() {
     }
   );
 
-  // cloud cover predictions
+  // zero line
   $('.predictions').sparkline(
-    <%= @cloud_cover.to_json %>,
+    [0, 0],
     {
       composite: true,
-      defaultPixelsPerValue: 1,
-      fillColor: false,
+      lineColor: '#DDD',
       chartRangeMin: 0,
-      chartRangeMax: 100,
-      lineColor: '#888',
+      chartRangeMax: 1,
       minSpotColor: false,
       maxSpotColor: false,
       spotColor: false
@@ -113,7 +110,7 @@ head.ready(function() {
       composite: true,
       defaultPixelsPerValue: 4,
       fillColor: false,
-      chartRangeMin: <%= min_w %>,
+      chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#8F8',
       minSpotColor: false,
@@ -129,7 +126,7 @@ head.ready(function() {
       defaultPixelsPerValue: 4,
       fillColor: false,
       composite: true,
-      chartRangeMin: <%= min_w %>,
+      chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#0F0',
       minSpotColor: '#088',
@@ -175,7 +172,7 @@ head.ready(function() {
       height: 50,
       fillColor: false,
       defaultPixelsPerValue: 1,
-      chartRangeMin: <%= min_w %>,
+      chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#4C4',
       lineWidth: 1,
@@ -192,7 +189,7 @@ head.ready(function() {
       height: 50,
       fillColor: false,
       defaultPixelsPerValue: 1,
-      chartRangeMin: <%= min_w %>,
+      chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#080',
       lineWidth: 1.5,
@@ -219,7 +216,7 @@ head.ready(function() {
   );
 
   // night/day for precip graph
-  $('.precipitation').sparkline(
+  $('.sky').sparkline(
     <%= @night_day.to_json %>,
     {
       height: 10,
@@ -232,8 +229,8 @@ head.ready(function() {
     }
   );
 
-  // hour marks for precip graph
-  $('.precipitation').sparkline(
+  // hour marks for sky graph
+  $('.sky').sparkline(
     <%= @hour_marks.to_json %>,
     {
       type: 'bar',
@@ -246,8 +243,22 @@ head.ready(function() {
     }
   );
 
+  // cloud cover predictions
+  $('.sky').sparkline(
+    <%= @cloud_cover.to_json %>,
+    {
+      type: 'bar',
+      composite: true,
+      barSpacing: 1,
+      barWidth: 3,
+      barColor: '#AAA',
+      chartRangeMin: 0,
+      chartRangeMax: 100
+    }
+  );
+
   // precipitation prediction
-  $('.precipitation').sparkline(
+  $('.sky').sparkline(
     <%= @precipitation.to_json %>,
     {
       type: 'bar',
