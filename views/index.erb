@@ -37,7 +37,7 @@
   </div>
 
   <div class="forecast">
-    <% @text_forecast[0..2].each do |day| %>
+    <% @text_forecast.each do |day| %>
     <p>
       <strong><%= day.first %></strong>
       <%= day.last %>
