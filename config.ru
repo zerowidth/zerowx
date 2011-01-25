@@ -5,5 +5,7 @@ Bundler.require :default
 
 ENV["TZ"] = "US/Mountain"
 
-require "./app"
+$:.push File.expand_path("../lib", __FILE__)
+require "zerowx"
+
 run ZeroWx::App
