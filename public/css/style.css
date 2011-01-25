@@ -84,10 +84,16 @@ button {  width: auto; overflow: visible; }
 
 /* ***** */
 
+#main, header, footer {
+  text-align: center;
+}
+
 .location {
   width: 320px;
   max-width: 640px;
   min-width: 320px;
+  margin: 0 auto;
+  text-align: left;
 
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -100,6 +106,7 @@ button {  width: auto; overflow: visible; }
   font-weight: bold;
   text-align: center;
   border-bottom: 1px solid #888;
+  line-height: 1.5em;
 }
 
 .station_name {
@@ -167,6 +174,7 @@ footer {
   width: 320px;
   max-width: 640px;
   min-width: 320px;
+  margin: 0 auto;
 
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
