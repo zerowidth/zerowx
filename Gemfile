@@ -9,3 +9,8 @@ gem "json", "~> 1.4.6"
 platform :ruby_18 do
   gem "fastercsv", "~> 1.5.3"
 end
+
+group :development do
+  gem "heroku"
+  gem "shotgun"
+end
