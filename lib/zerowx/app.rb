@@ -16,6 +16,7 @@ module ZeroWx
     end
 
     get "/" do
+      @location = "Boulder, CO"
       @conditions = @wu.current_conditions "KCOBOULD29"
       @forecast = @wu.forecast "80305"
       @history = @wu.daily_history "KCOBOULD29"
