@@ -1,8 +1,7 @@
 module ZeroWx
 
   class App < Sinatra::Base
-    set :app_file, __FILE__
-    set :views, File.expand_path(__FILE__ + "/../../../views")
+    set :root, File.expand_path(__FILE__ + "/../../../")
 
     def initialize(*args)
       super
