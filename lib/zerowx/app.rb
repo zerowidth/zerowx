@@ -5,7 +5,7 @@ module ZeroWx
 
     def initialize(*args)
       super
-      # Api.cache_server = Dalli::Client.new "127.0.0.1:11211"
+      Api.cache_server = Dalli::Client.new "127.0.0.1:11211"
       @wu = WeatherUnderground.new
       @nws = NationalWeatherService.new
     end
