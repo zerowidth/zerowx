@@ -109,11 +109,13 @@ button {  width: auto; overflow: visible; }
 
 .station_name {
   font-size: 0.923em;
+  line-height: 1.5em;
   float: left;
 }
 
 .updated_at {
   font-size: 0.923em;
+  line-height: 1.5em;
   float: right;
   text-align: right;
 }
@@ -134,7 +136,7 @@ button {  width: auto; overflow: visible; }
   float: left;
 }
 
-.graph .temp_history, .graph .wind_history, .graph .gust_history {
+.graph .temp_history, .graph .wind_history, .graph .gust_history, .graph .sky {
   float: left;
   position: absolute;
 }
@@ -169,9 +171,7 @@ button {  width: auto; overflow: visible; }
 
 
 footer {
-  width: 320px;
-  max-width: 640px;
-  min-width: 320px;
+  width: 640px;
   margin: 0 auto;
 
   -webkit-box-sizing: border-box;
@@ -179,7 +179,6 @@ footer {
   box-sizing: border-box;
 
   padding: 5px 10px;
-
   text-align: center;
 }
 
@@ -200,6 +199,17 @@ footer a img {
 
 @media screen and (max-device-width: 480px) {
 
+  .location {
+    width: 320px;
+  }
+
+  .graph {
+    height: 80px;
+  }
+
+  footer {
+    width: 320px;
+  }
 
   /* html { -webkit-text-size-adjust:none; -ms-text-size-adjust:none; } */
 }

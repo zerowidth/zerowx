@@ -49,6 +49,20 @@
 
 <script>
 head.ready(function() {
+
+  // default is iphone size
+  var ten_minute_size = 1;
+  var hour_size = 6;
+  var graph_height = 60;
+  var cloud_height = 20;
+
+  if($('.location .graph').width() > 320) {
+    ten_minute_size = 2;
+    hour_size = 12;
+    graph_height = 90;
+    cloud_height = 30;
+  }
+
   <% min_t = (@temp_history + @temperatures).compact.min - 5 %>
   <% max_t = (@temp_history + @temperatures).compact.max + 5 %>
   <% max_w = (@wind_history + @wind_speeds + @wind_gusts).compact.max + 5 %>
@@ -59,11 +73,10 @@ head.ready(function() {
   $('.predictions').sparkline(
     <%= @night_day.to_json %>,
     {
-      height: 60,
-      width: '100%',
+      height: graph_height,
       type: 'bar',
       barSpacing: 0,
-      barWidth: 1,
+      barWidth: ten_minute_size,
       barColor: '#EEE',
       chartRangeMin: 0,
       chartRangeMax: 1
@@ -76,7 +89,7 @@ head.ready(function() {
     {
       type: 'bar',
       composite: true,
-      barSpacing: 5,
+      barSpacing: hour_size - 1,
       barWidth: 1,
       barColor: '#DDD',
       chartRangeMin: 0,
@@ -164,9 +177,9 @@ head.ready(function() {
   $('.gust_history').sparkline(
     <%= @gust_history.to_json %>,
     {
-      height: 60,
+      height: graph_height,
       fillColor: false,
-      defaultPixelsPerValue: 1,
+      defaultPixelsPerValue: ten_minute_size,
       chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#4C4',
@@ -181,9 +194,9 @@ head.ready(function() {
   $('.wind_history').sparkline(
     <%= @wind_history.to_json %>,
     {
-      height: 60,
+      height: graph_height,
       fillColor: false,
-      defaultPixelsPerValue: 1,
+      defaultPixelsPerValue: ten_minute_size,
       chartRangeMin: 0,
       chartRangeMax: <%= max_w %>,
       lineColor: '#080',
@@ -198,9 +211,9 @@ head.ready(function() {
   $('.temp_history').sparkline(
     <%= @temp_history.to_json %>,
     {
-      height: 60,
+      height: graph_height,
       fillColor: false,
-      defaultPixelsPerValue: 1,
+      defaultPixelsPerValue: ten_minute_size,
       chartRangeMin: <%= min_t %>,
       chartRangeMax: <%= max_t %>,
       lineWidth: 1.5,
@@ -214,10 +227,10 @@ head.ready(function() {
   $('.sky').sparkline(
     <%= @night_day.to_json %>,
     {
-      height: 10,
+      height: cloud_height,
       type: 'bar',
       barSpacing: 0,
-      barWidth: 1,
+      barWidth: ten_minute_size,
       barColor: '#EEE',
       chartRangeMin: 0,
       chartRangeMax: 1
@@ -230,7 +243,7 @@ head.ready(function() {
     {
       type: 'bar',
       composite: true,
-      barSpacing: 5,
+      barSpacing: hour_size - 1,
       barWidth: 1,
       barColor: '#DDD',
       chartRangeMin: 0,
@@ -245,7 +258,7 @@ head.ready(function() {
       type: 'bar',
       composite: true,
       barSpacing: 1,
-      barWidth: 5,
+      barWidth: hour_size - 1,
       barColor: '#AAA',
       chartRangeMin: 0,
       chartRangeMax: 100
@@ -259,7 +272,7 @@ head.ready(function() {
       type: 'bar',
       composite: true,
       barSpacing: 1,
-      barWidth: 5,
+      barWidth: hour_size - 1,
       barColor: '#8CF',
       chartRangeMin: 0,
       chartRangeMax: 100
