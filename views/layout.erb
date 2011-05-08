@@ -13,42 +13,23 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="shortcut icon" href="/favicon.ico">
+
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="css/style.css">
-  <script src="js/libs/head.min.js"></script>
-  <script>
-    head.js('js/libs/modernizr-1.6.min.js', 'js/libs/jquery-1.4.4.min.js', 'js/libs/jquery.sparkline.min.js');
-  </script>
+  <!-- <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.css" /> -->
+  <link rel="stylesheet" href="jquery-mobile/compiled/jquery.mobile-1.0a4.1.min.css" />
+  <link rel="stylesheet" href="css/zerowx.css">
+
+  <script src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+  <!-- <script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script> -->
+  <script src="jquery-mobile/compiled/jquery.mobile-1.0a4.1.min.js"></script>
+  <script src="js/libs/jquery.sparkline.min.js"></script>
 </head>
 
 <body>
 
-  <div id="container">
-    <header>
-    </header>
-
-    <div id="main">
-      <%= yield %>
-    </div>
-
-    <footer>
-      weather data from:
-      <br />
-      <a href="http://weather.gov/">
-        <img src="/images/NOAA-logo.jpg" alt="" width="50" height="50" />
-      </a>
-      <a href="http://wunderground.com/weatherstation/">
-        <img src="images/bh-wui_logo.gif" alt="" width="81" height="50" />
-      </a>
-      <br />
-      <a href="http://weather.gov/">NOAA/National Weather Service</a> and
-      <br />
-      <a href="http://www.wunderground.com/">Weather Underground</a>
-    </footer>
-  </div> <!-- end of #container -->
+  <%= yield %>
 
   <!--[if lt IE 7 ]>
     <script src="js/libs/dd_belatedpng.js"></script>
