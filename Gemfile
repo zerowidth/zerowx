@@ -1,6 +1,6 @@
 source :rubygems
 
-gem "sinatra", "~> 1.1.2"
+gem "sinatra", "~> 1.2.1", :require => "sinatra/base"
 gem "patron", "= 0.4.9"
 gem "nokogiri", "~> 1.4.4"
 gem "dalli", "~> 1.0.1"
@@ -12,5 +12,5 @@ end
 
 group :development do
   gem "heroku"
-  gem "shotgun"
+  gem "thin"
 end
