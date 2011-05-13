@@ -18,6 +18,7 @@ module ZeroWx
 
     def cache(key, ttl)
       if Api.cache_server
+        key = key.gsub(/\W/, "-")
         puts "cache get: #{key}"
         Api.cache_server.fetch(key, ttl) do
           puts "cache set: #{key} - #{ttl}"
@@ -33,7 +34,7 @@ module ZeroWx
       return cache url, ttl do
         response = http.get url
         if response.status >= 300
-          raise Error, "HTTP #{response.code}\n#{response.body}"
+          raise Error, "HTTP #{response.status}\n#{response.body}"
         end
         response.body
       end
