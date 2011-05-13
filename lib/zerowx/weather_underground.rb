@@ -21,6 +21,17 @@ module ZeroWx
       end
       return csv
     end
+
+    def stations_by_coords(lat, lon)
+      locations = hash_get("/auto/wui/geo/GeoLookupXML/index.xml?query=#{lat},#{lon}", :cache => 60)["location"]
+      locations["nearby_weather_stations"]["pws"]["station"].sort_by { |s| s["distance_km"].to_f }
+    end
+
+    def stations_by_query(query)
+      query = URI.escape(query)
+      locations = hash_get("/auto/wui/geo/GeoLookupXML/index.xml?query=#{query}", :cache => 60)["location"]
+      locations["nearby_weather_stations"]["pws"]["station"].sort_by { |s| s["distance_km"].to_f }
+    end
   end
 
 end
