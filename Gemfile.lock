@@ -6,7 +6,7 @@ GEM
     dalli (1.0.3)
     eventmachine (0.12.10)
     fastercsv (1.5.4)
-    heroku (2.0.5)
+    heroku (2.1.2)
       launchy (>= 0.3.2)
       rest-client (~> 1.6.1)
       term-ansicolor (~> 1.0.5)
