@@ -16,6 +16,41 @@ module ZeroWx
     end
 
     get "/" do
+      @stations = []
+      erb :stations
+    end
+
+    get "/add_station" do
+      erb :search
+    end
+
+    # for reload on search page
+    get "/search" do
+      redirect to("/")
+    end
+
+    post "/search" do
+      if params[:lat] && params[:lon]
+        @stations = @wu.stations_by_coords(params[:lat].to_f, params[:lon].to_f)
+      elsif params[:location]
+        @stations = @wu.stations_by_query(params[:location])
+      else
+        @stations = []
+      end
+
+      erb :search_results
+    end
+
+    get "/weather/:station_id" do
+      @conditions = @wu.current_conditions params[:station_id]
+
+      @city = @conditions["location"]["city"] + ", " + @conditions["location"]["state"]
+      @location = @conditions["location"]["full"]
+
+      erb :weather
+    end
+
+    get "/what" do
       @location = "Boulder, CO"
       @conditions = @wu.current_conditions "KCOBOULD29"
       @forecast = @wu.forecast "80305"

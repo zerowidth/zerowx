@@ -1,0 +1,18 @@
+<div id="weather" data-role="page">
+  <div data-role="header">
+    <h1><%= @city %></h1>
+    <a href="/" class="ui-btn-right" data-icon="home" data-iconpos="notext"></a>
+  </div>
+
+  <div data-role="content">
+    <p>
+      <strong><%= @location %></strong>
+    </p>
+
+    <p>
+      Currently <%= @conditions["temp_f"] %>ºF
+    </p>
+
+  </div>
+</div>
+

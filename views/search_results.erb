@@ -1,0 +1,25 @@
+<div id="search_results" data-role="page">
+  <div data-role="header">
+    <h1>Stations Near You</h1>
+    <a href="/" class="ui-btn-right" data-icon="home" data-iconpos="notext"></a>
+  </div>
+
+  <div data-role="content">
+    <ul data-role="listview">
+    <% @stations.each do |station| %>
+      <li>
+        <% name = station["neighborhood"].strip.gsub(/\s+/, " ") %>
+        <% city = station["city"] + ", " + station["state"] %>
+        <a href="/weather/<%= station["id"] %>">
+          <h3><%= name == "" ? city : name %></h3>
+          <p>
+            <%= station["id"] %> in <%= city %> -
+            <%= station["distance_mi"] %> mi /
+            <%= station["distance_km"] %> km
+          </p>
+        </a>
+      </li>
+    <% end %>
+    </ul>
+  </div>
+</div>
