@@ -1,29 +1,14 @@
-<div id="stations" data-role="page">
+<div id="stations" data-role="page" data-url="/">
   <div data-role="header" data-backbtn="false">
     <h1>Stations</h1>
-    <a href="/" class="ui-btn-right" data-icon="home" data-iconpos="notext"></a>
   </div>
 
   <div data-role="content">
-    <ul data-role="listview">
-    <% @stations.each do |station| %>
-      <li>
-        <% name = station["neighborhood"].strip.gsub(/\s+/, " ") %>
-        <% city = station["city"] + ", " + station["state"] %>
-        <a href="/weather/<%= station["id"] %>">
-          <h3><%= name == "" ? city : name %></h3>
-          <p>
-            <%= station["id"] %> in <%= city %> -
-            <%= station["distance_mi"] %> mi /
-            <%= station["distance_km"] %> km
-          </p>
-        </a>
-      </li>
-    <% end %>
+    <ul id="station_list" data-role="listview">
     </ul>
   </div>
 
   <div data-role="footer" class="ui-bar">
-    <a href="/add_station" data-role="button" data-icon="plus">Add Location</a>
+    <a href="/add_station" data-role="button" data-icon="plus">Add Station</a>
   </div>
 </div>

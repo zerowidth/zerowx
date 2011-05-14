@@ -44,8 +44,16 @@ module ZeroWx
     get "/weather/:station_id" do
       @conditions = @wu.current_conditions params[:station_id]
 
-      @city = @conditions["location"]["city"] + ", " + @conditions["location"]["state"]
-      @location = @conditions["location"]["full"]
+      @location = @conditions["location"]["city"] + ", " + @conditions["location"]["state"]
+      @name = @conditions["location"]["full"].gsub(/\s+/, " ")
+      neighborhood = @conditions["location"]["neighborhood"].gsub(/\s+/, " ")
+      neighborhood = @location if neighborhood == ""
+
+      @station = {
+        :id => params["station_id"],
+        :name => neighborhood,
+        :location => @location
+      }
 
       erb :weather
     end

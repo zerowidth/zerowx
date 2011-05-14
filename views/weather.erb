@@ -1,18 +1,26 @@
-<div id="weather" data-role="page">
+<div id="weather" data-role="page" data-station-id="<%= params["station_id"] %>">
+  <script class="station_info" type="text/json">
+    <%= @station.to_json %>
+  </script>
   <div data-role="header">
-    <h1><%= @city %></h1>
+    <h1><%= @location %></h1>
     <a href="/" class="ui-btn-right" data-icon="home" data-iconpos="notext"></a>
   </div>
 
   <div data-role="content">
     <p>
-      <strong><%= @location %></strong>
+      <strong><%= @name %></strong>
     </p>
 
     <p>
       Currently <%= @conditions["temp_f"] %>ºF
     </p>
 
+  </div>
+
+  <div data-role="footer" class="ui-bar">
+    <a class="remember_station" href="#" data-role="button" data-icon="star" style="display:none">Save Station</a>
+    <a class="forget_station" href="#" data-role="button" data-icon="delete" style="display:none">Forget Station</a>
   </div>
 </div>
 

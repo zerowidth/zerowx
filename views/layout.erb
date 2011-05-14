@@ -24,10 +24,13 @@
 
   <script src="/js/libs/modernizr-1.7.min.js"></script>
   <script src="http://code.jquery.com/jquery-1.6.1.min.js"></script>
+  <script src="/js/libs/jquery.mustache.js"></script>
+  <script src="/js/libs/underscore-min.js"></script>
+  <!-- <script src="/js/libs/backbone.min.js"></script> -->
   <!-- <script src="http://code.jquery.com/mobile/1.0a4.1/jquery.mobile-1.0a4.1.min.js"></script> -->
   <script src="/js/app.js"></script>
+  <!-- jquery mobile loaded last to allow mobileinit event binding -->
   <script src="/jquery-mobile/compiled/jquery.mobile-1.0a4.1.min.js"></script>
-  <script src="/js/libs/jquery.sparkline.min.js"></script>
 </head>
 
 <body>
@@ -50,6 +53,22 @@
    })(document, 'script');
   </script>
   -->
+
+  <script id="station_list_template" type="text/html">
+    {{#stations}}
+    <li>
+      <a href="/weather/{{ id }}">
+        <h3>{{ name }}</h3>
+        <p>
+          {{ id }} in {{ location }}
+        </p>
+      </a>
+    </li>
+    {{/stations}}
+    {{^stations}}
+    <li>No stations saved yet.</li>
+    {{/stations}}
+  </script>
 
 </body>
 </html>

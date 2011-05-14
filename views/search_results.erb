@@ -5,21 +5,6 @@
   </div>
 
   <div data-role="content">
-    <ul data-role="listview">
-    <% @stations.each do |station| %>
-      <li>
-        <% name = station["neighborhood"].strip.gsub(/\s+/, " ") %>
-        <% city = station["city"] + ", " + station["state"] %>
-        <a href="/weather/<%= station["id"] %>">
-          <h3><%= name == "" ? city : name %></h3>
-          <p>
-            <%= station["id"] %> in <%= city %> -
-            <%= station["distance_mi"] %> mi /
-            <%= station["distance_km"] %> km
-          </p>
-        </a>
-      </li>
-    <% end %>
-    </ul>
+    <%= erb :_station_list %>
   </div>
 </div>

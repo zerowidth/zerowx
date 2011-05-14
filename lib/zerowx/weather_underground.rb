@@ -23,14 +23,32 @@ module ZeroWx
     end
 
     def stations_by_coords(lat, lon)
-      locations = hash_get("/auto/wui/geo/GeoLookupXML/index.xml?query=#{lat},#{lon}", :cache => 60)["location"]
-      locations["nearby_weather_stations"]["pws"]["station"].sort_by { |s| s["distance_km"].to_f }
+      locations = hash_get("/auto/wui/geo/GeoLookupXML/index.xml?query=#{lat},#{lon}", :cache => 900)["location"]
+      stations_from_locations(locations)
     end
 
     def stations_by_query(query)
       query = URI.escape(query)
-      locations = hash_get("/auto/wui/geo/GeoLookupXML/index.xml?query=#{query}", :cache => 60)["location"]
-      locations["nearby_weather_stations"]["pws"]["station"].sort_by { |s| s["distance_km"].to_f }
+      locations = hash_get("/auto/wui/geo/GeoLookupXML/index.xml?query=#{query}", :cache => 900)["location"]
+      stations_from_locations(locations)
+    end
+
+    protected
+
+    def stations_from_locations(locations)
+      stations = reformat_stations(locations["nearby_weather_stations"]["pws"]["station"])
+      stations.sort_by { |s| s["distance_km"].to_f }
+    end
+
+    def reformat_stations(stations)
+      stations.each do |station|
+        neighborhood = station["neighborhood"].strip.gsub(/\s+/, " ")
+        location = "#{station["city"]}, #{station["state"]}"
+
+        station["name"] = neighborhood == "" ? location : neighborhood
+        station["location"] = location
+      end
+      stations
     end
   end
 
