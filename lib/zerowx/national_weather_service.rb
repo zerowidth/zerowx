@@ -20,7 +20,7 @@ module ZeroWx
           temps = doc.xpath("/dwml/data/parameters/temperature[@type='hourly']/value").map do |temp|
             temp.content.empty? ? nil : temp.content.to_i
           end
-          @temp = Hash[times.zip(temps)]
+          @temp = Map.new times.zip(temps).flatten
         end
         @temp
       end
@@ -30,7 +30,7 @@ module ZeroWx
           winds = doc.xpath("/dwml/data/parameters/wind-speed[@type='sustained']/value").map do |speed|
             speed.content.empty? ? nil : speed.content.to_i
           end
-          @wind = Hash[times.zip(winds)]
+          @wind = Map.new times.zip(winds).flatten
         end
         @wind
       end
@@ -40,7 +40,7 @@ module ZeroWx
           gusts = doc.xpath("/dwml/data/parameters/wind-speed[@type='gust']/value").map do |speed|
             speed.content.empty? ? nil : speed.content.to_i
           end
-          @gust = Hash[times.zip(gusts)]
+          @gust = Map.new times.zip(gusts).flatten
         end
         @gust
       end
@@ -50,7 +50,7 @@ module ZeroWx
           precipitation = doc.xpath("/dwml/data/parameters/probability-of-precipitation/value").map do |prob|
             prob.content.empty? || prob.content.to_i == 0 ? nil : prob.content.to_i
           end
-          @precip = Hash[times.zip(precipitation)]
+          @precip = Map.new times.zip(precipitation).flatten
         end
         @precip
       end
@@ -60,7 +60,7 @@ module ZeroWx
           coverage = doc.xpath("/dwml/data/parameters/cloud-amount/value").map do |prob|
             prob.content.empty? || prob.content.to_i == 0 ? nil : prob.content.to_i
           end
-          @cloud_cover = Hash[times.zip(coverage)]
+          @cloud_cover = Map.new times.zip(coverage).flatten
         end
         @cloud_cover
       end

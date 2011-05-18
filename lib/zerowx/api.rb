@@ -57,7 +57,7 @@ module ZeroWx
     end
 
     def hashify(xml)
-      h = {}
+      h = Map.new
       if xml.element_children.empty?
         return xml.content
       else

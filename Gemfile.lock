@@ -14,6 +14,7 @@ GEM
     launchy (0.4.0)
       configuration (>= 0.0.5)
       rake (>= 0.8.1)
+    map (3.0.0)
     mime-types (1.16)
     nokogiri (1.4.4)
     patron (0.4.9)
@@ -39,6 +40,7 @@ DEPENDENCIES
   fastercsv (~> 1.5.3)
   heroku
   json (~> 1.4.6)
+  map
   nokogiri (~> 1.4.4)
   patron (= 0.4.9)
   sinatra (~> 1.2.1)
