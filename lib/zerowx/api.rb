@@ -3,6 +3,9 @@ module ZeroWx
   class Api
     Error = Class.new(StandardError)
 
+    SHORT_TIMEOUT = 60
+    LONG_TIMEOUT = 900
+
     class << self
       attr_accessor :base_url
       attr_accessor :cache_server

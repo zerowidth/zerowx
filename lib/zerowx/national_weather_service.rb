@@ -83,13 +83,13 @@ module ZeroWx
 
     end
 
-    def hourly_forecast
-      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=digitalDWML", :cache => 900
+    def hourly_forecast(lat, lon)
+      doc = xml_get "/MapClick.php?lat=#{lat}&lon=#{lon}&FcstType=digitalDWML", :cache => LONG_TIMEOUT
       return HourlyForecast.new(doc)
     end
 
-    def forecast
-      doc = xml_get "/MapClick.php?lat=40.02690&lon=-105.25100&FcstType=dwml", :cache => 900
+    def forecast(lat, lon)
+      doc = xml_get "/MapClick.php?lat=#{lat}&lon=#{lon}&FcstType=dwml", :cache => LONG_TIMEOUT
       return Forecast.new(doc)
     end
 
