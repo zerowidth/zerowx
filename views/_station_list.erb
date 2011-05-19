@@ -1,0 +1,19 @@
+<ul data-role="listview">
+<% if @stations.empty? %>
+  <li>No stations found matching your query :(</li>
+<% else %>
+<% @stations.each do |station| %>
+  <li>
+    <a href="/weather/<%= station["id"] %>">
+      <h3><%= station["name"] %></h3>
+      <p>
+        <%= station["id"] %> in <%= station["location"] %> -
+        <%= station["distance_mi"] %> mi /
+        <%= station["distance_km"] %> km
+      </p>
+    </a>
+  </li>
+<% end %>
+<% end %>
+</ul>
+

@@ -1,0 +1,310 @@
+<div id="weather" data-role="page" data-station-id="<%= params["station_id"] %>" data-theme="d">
+  <script class="station_info" type="text/json">
+    <%= @station.to_json %>
+  </script>
+  <div data-role="header">
+    <h1><%= @location %></h1>
+    <a href="/" class="ui-btn-right" data-icon="home" data-iconpos="notext"></a>
+  </div>
+
+  <div data-role="content">
+    <p>
+      <strong><%= @name %></strong>
+    </p>
+
+    <div class="station_id clearfix">
+      <div class="updated_at">
+        <%= Time.parse(@conditions.observation_time_rfc822).strftime("%l:%M %P") %>
+      </div>
+    </div>
+
+    <div class="graph">
+      <div class="clearfix">
+        <div class="predictions"></div>
+        <div class="gust_history"></div>
+        <div class="wind_history"></div>
+        <div class="temp_history"></div>
+      </div>
+      <div class="clearfix">
+        <div class="sky"></div>
+      </div>
+    </div>
+
+    <div class="current_conditions clearfix">
+      <div class="temperature">
+        <%= @conditions.temp_f %>º
+      </div>
+      <div class="conditions">
+        <%= @forecast.simpleforecast.forecastday.first.conditions %>
+      </div>
+      <div class="wind">
+        <%= @conditions.wind_mph %> mph / <%= @conditions.wind_gust_mph %> gust
+      </div>
+    </div>
+
+    <div class="forecast">
+      <% @text_forecast.each do |day| %>
+      <p><strong><%= day.first %></strong> <%= day.last %></p>
+      <% end %>
+    </div>
+
+    <script>
+      $('#weather').bind('pageshow', function(e) {
+
+      var $page = $(e.target);
+
+      // default is iphone size
+      var ten_minute_size = 1;
+      var hour_size = 6;
+      var graph_height = 60;
+      var cloud_height = 20;
+
+      if($page.find('.graph').width() > 400) {
+        ten_minute_size = 2;
+        hour_size = 12;
+        graph_height = 90;
+        cloud_height = 30;
+        $('.graph').css('height', '120px');
+      }
+
+      <% min_t = (@temp_history + @temperatures).compact.min - 5 %>
+      <% max_t = (@temp_history + @temperatures).compact.max + 5 %>
+      <% max_w = (@wind_history + @wind_speeds + @wind_gusts).compact.max + 5 %>
+
+      // draw night/day
+      $page.find('.predictions').sparkline(
+        <%= @night_day.to_json %>,
+        {
+          height: graph_height,
+          type: 'bar',
+          barSpacing: 0,
+          barWidth: ten_minute_size,
+          barColor: '#EEE',
+          chartRangeMin: 0,
+          chartRangeMax: 1
+        }
+      );
+
+      // hour marks
+      $page.find('.predictions').sparkline(
+        <%= @hour_marks.to_json %>,
+        {
+          type: 'bar',
+          composite: true,
+          barSpacing: hour_size - 1,
+          barWidth: 1,
+          barColor: '#DDD',
+          chartRangeMin: 0,
+          chartRangeMax: 1
+        }
+      );
+
+      // zero line
+      $page.find('.predictions').sparkline(
+        [0, 0],
+        {
+          composite: true,
+          lineColor: '#DDD',
+          chartRangeMin: 0,
+          chartRangeMax: 1,
+          minSpotColor: false,
+          maxSpotColor: false,
+          spotColor: false
+        }
+      );
+
+      // wind gust predictions
+      $page.find('.predictions').sparkline(
+        <%= @wind_gusts.to_json %>,
+        {
+          composite: true,
+          defaultPixelsPerValue: 4,
+          fillColor: false,
+          chartRangeMin: 0,
+          chartRangeMax: <%= max_w %>,
+          lineColor: '#8F8',
+          spotColor: false,
+          minSpotColor: false,
+          maxSpotColor: false
+        }
+      );
+
+      // wind speed predictions
+      $page.find('.predictions').sparkline(
+        <%= @wind_speeds.to_json %>,
+        {
+          defaultPixelsPerValue: 4,
+          fillColor: false,
+          composite: true,
+          chartRangeMin: 0,
+          chartRangeMax: <%= max_w %>,
+          lineColor: '#0F0',
+          spotColor: false,
+          minSpotColor: false,
+          maxSpotColor: false
+        }
+      );
+
+      // temperature predictions
+      $page.find('.predictions').sparkline(
+        <%= @temperatures.to_json %>,
+        {
+          defaultPixelsPerValue: 4,
+          fillColor: false,
+          composite: true,
+          chartRangeMin: <%= min_t %>,
+          chartRangeMax: <%= max_t %>,
+          lineColor: '#88F',
+          minSpotColor: '#808',
+          maxSpotColor: '#808',
+          spotColor: false
+        }
+      );
+
+      // current time marker
+      // $page.find('.predictions').sparkline(
+      //   <%= @current_time.to_json %>,
+      //   {
+      //     type: 'bar',
+      //     composite: true,
+      //     barSpacing: 0,
+      //     barWidth: 1,
+      //     barColor: '#F88',
+      //     chartRangeMin: 0,
+      //     chartRangeMax: 1
+      //   }
+      // );
+
+      // wind gust history
+      $page.find('.gust_history').sparkline(
+        <%= @gust_history.to_json %>,
+        {
+          height: graph_height,
+          fillColor: false,
+          defaultPixelsPerValue: ten_minute_size,
+          chartRangeMin: 0,
+          chartRangeMax: <%= max_w %>,
+          lineColor: '#4C4',
+          lineWidth: 1,
+          spotColor: false,
+          minSpotColor: false,
+          maxSpotColor: false
+        }
+      );
+
+      // wind speed history
+      $page.find('.wind_history').sparkline(
+        <%= @wind_history.to_json %>,
+        {
+          height: graph_height,
+          fillColor: false,
+          defaultPixelsPerValue: ten_minute_size,
+          chartRangeMin: 0,
+          chartRangeMax: <%= max_w %>,
+          lineColor: '#080',
+          lineWidth: 1.5,
+          spotColor: '#F00',
+          minSpotColor: false,
+          maxSpotColor: false
+        }
+      );
+
+      // temperature history
+      $page.find('.temp_history').sparkline(
+        <%= @temp_history.to_json %>,
+        {
+          height: graph_height,
+          fillColor: false,
+          defaultPixelsPerValue: ten_minute_size,
+          chartRangeMin: <%= min_t %>,
+          chartRangeMax: <%= max_t %>,
+          lineWidth: 1.5,
+          spotColor: '#F00',
+          minSpotColor: false,
+          maxSpotColor: false
+        }
+      );
+
+      // night/day for precip graph
+      $page.find('.sky').sparkline(
+        <%= @night_day.to_json %>,
+        {
+          height: cloud_height,
+          type: 'bar',
+          barSpacing: 0,
+          barWidth: ten_minute_size,
+          barColor: '#EEE',
+          chartRangeMin: 0,
+          chartRangeMax: 1
+        }
+      );
+
+      // hour marks for sky graph
+      $page.find('.sky').sparkline(
+        <%= @hour_marks.to_json %>,
+        {
+          type: 'bar',
+          composite: true,
+          barSpacing: hour_size - 1,
+          barWidth: 1,
+          barColor: '#DDD',
+          chartRangeMin: 0,
+          chartRangeMax: 1
+        }
+      );
+
+      // cloud cover predictions
+      $page.find('.sky').sparkline(
+        <%= @cloud_cover.to_json %>,
+        {
+          type: 'bar',
+          composite: true,
+          barSpacing: 1,
+          barWidth: hour_size - 1,
+          barColor: '#AAA',
+          chartRangeMin: 0,
+          chartRangeMax: 100
+        }
+      );
+
+      // precipitation prediction
+      $page.find('.sky').sparkline(
+        <%= @precipitation.to_json %>,
+        {
+          type: 'bar',
+          composite: true,
+          barSpacing: 1,
+          barWidth: hour_size - 1,
+          barColor: '#8CF',
+          chartRangeMin: 0,
+          chartRangeMax: 100
+        }
+      );
+
+      // current time marker
+      // $page.find('.precipitation').sparkline(
+      //   <%= @current_time.to_json %>,
+      //   {
+      //     type: 'bar',
+      //     composite: true,
+      //     barSpacing: 0,
+      //     barWidth: 1,
+      //     barColor: '#F88',
+      //     chartRangeMin: 0,
+      //     chartRangeMax: 1
+      //   }
+      // );
+
+
+    });
+    </script>
+
+
+  </div>
+
+  <div data-role="footer" class="ui-bar">
+    <a class="remember_station" href="#" data-role="button" data-icon="star" style="display:none">Save Station</a>
+    <a class="forget_station" href="#" data-role="button" data-icon="delete" style="display:none">Forget Station</a>
+  </div>
+</div>
+

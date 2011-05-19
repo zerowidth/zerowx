@@ -1,0 +1,70 @@
+.clearfix:before, .clearfix:after {  content: "\0020"; display: block; height: 0; visibility: hidden;   }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; }
+
+
+#about p, #search .error {
+  text-align: center;
+}
+
+a img {
+  text-decoration: none;
+  border: 0;
+}
+
+.center {
+  text-align: center;
+}
+
+
+.graph {
+  height: 80px;
+  width: 100%;
+}
+
+.graph .loading {
+  text-align: center;
+  width: 100%;
+  margin-top: 23px;
+}
+
+.graph .predictions {
+  float: left;
+}
+
+.graph .temp_history, .graph .wind_history, .graph .gust_history, .graph .sky {
+  float: left;
+  position: absolute;
+}
+
+.current_conditions {
+}
+
+.current_conditions .temperature {
+  color: #00F;
+  float: left;
+  font-size: 1.2em;
+  /* font-size: 1.538em; [> 20px <]*/
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.current_conditions .wind {
+  width: 100%;
+  color: #080;
+  text-align: center;
+  padding-top: 4px;
+}
+
+.current_conditions .conditions {
+  float: right;
+  margin-top: 4px;
+}
+
+#about p {
+  text-align: center;
+}
+
+#about p a img {
+  text-decoration: none;
+}

@@ -1,0 +1,26 @@
+<div id="search" data-role="page" data-theme="b">
+  <div data-role="header">
+    <h1>Add Station</h1>
+    <a href="/" class="ui-btn-right" data-icon="home" data-iconpos="notext"></a>
+  </div>
+
+  <div data-role="content">
+
+    <div class='error ui-body-e ui-corner-all' style="display:none">
+      <p></p>
+    </div>
+
+    <div data-role="fieldcontain">
+      <a id="geolocate" data-role="button" data-icon="star">Find Me</a>
+    </div>
+
+    <form action="/search" method="post">
+      <div data-role="fieldcontain">
+          <label for="search">Enter a location</label>
+          <input type="search" name="location" id="search" value="" />
+      </div>
+      <button type="submit">Search</button>
+    </form>
+
+  </div>
+</div>

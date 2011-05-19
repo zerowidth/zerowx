@@ -16,19 +16,67 @@ module ZeroWx
     end
 
     get "/" do
-      @location = "Boulder, CO"
-      @conditions = @wu.current_conditions "KCOBOULD29"
-      @forecast = @wu.forecast "80305"
-      @history = @wu.daily_history "KCOBOULD29"
-      @text_forecast = @nws.forecast.text_forecast
+      # stations list is filled out from localstorage
+      @stations = []
+      erb :stations
+    end
 
-      hourly = @nws.hourly_forecast
+    get "/about" do
+      erb :about, :layout => false
+    end
 
+    get "/add_station" do
+      erb :search, :layout => false
+    end
+
+    # for reload on search page
+    get "/search" do
+      redirect to("/")
+    end
+
+    post "/search" do
+      if params[:lat] && params[:lon]
+        @stations = @wu.stations_by_coords(params[:lat].to_f, params[:lon].to_f)
+      elsif params[:location]
+        @stations = @wu.stations_by_query(params[:location])
+      else
+        @stations = []
+      end
+
+      erb :search_results, :layout => false
+    end
+
+    get "/weather/:station_id" do
+      @conditions = @wu.current_conditions(params[:station_id]).struct
+
+      @location = @conditions.location.city + ", " + @conditions.location.state
+      @name = @conditions.location.full.gsub(/\s+/, " ")
+      neighborhood = @conditions.location.neighborhood.gsub(/\s+/, " ")
+      neighborhood = @location if neighborhood == ""
+
+      # for station info for saving to localstorage
+      @station = {
+        :id => params["station_id"],
+        :name => neighborhood,
+        :location => @location
+      }
+
+      lat, lon = @conditions.location.latitude.to_f, @conditions.location.longitude.to_f
+
+      @forecast = @wu.forecast "#{lat},#{lon}"
+      @history = @wu.daily_history params[:station_id]
+      @text_forecast = @nws.forecast(lat, lon).text_forecast
+
+      hourly = @nws.hourly_forecast(lat, lon)
       now = Time.now
 
       current_hour = Time.mktime(now.year, now.month, now.day, now.hour)
-      hours = (-12..38).to_a.map { |o| current_hour + (o * 60 * 60) }
-      times = -72.step(228).to_a.map { |t| current_hour + (t * 10 * 60) }
+      # increments: 10 minutes, 60 minutes.
+      hours_back = 12
+      hours_forward = 36
+
+      hours = (-hours_back..hours_forward).to_a.map { |o| current_hour + (o * 60 * 60) }
+      times = (-hours_back * 6).step(hours_forward * 6).to_a.map { |t| current_hour + (t * 10 * 60) }
 
       @temperatures = hours.map { |t| t < now ? nil : hourly.temp[t] }
       @wind_speeds = hours.map { |t| t < now ? nil : hourly.wind[t] }
@@ -40,8 +88,8 @@ module ZeroWx
         (offset >= 0 && offset < 10 * 60) ? 1 : nil
       end
 
-      sunrise = @forecast["moon_phase"]["sunrise"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunrise"]["minute"].to_i
-      sunset = @forecast["moon_phase"]["sunset"]["hour"].to_i * 60 + @forecast["moon_phase"]["sunset"]["minute"].to_i
+      sunrise = @forecast.moon_phase.sunrise.hour.to_i * 60 + @forecast.moon_phase.sunrise.minute.to_i
+      sunset = @forecast.moon_phase.sunset.hour.to_i * 60 + @forecast.moon_phase.sunset.minute.to_i
       daytime = sunrise..sunset
       @night_day = times.map do |t|
         daytime.include?(t.hour * 60 + t.min) ? nil : 1
@@ -90,7 +138,7 @@ module ZeroWx
       end
       @gust_history.pop while @gust_history.size > 0 && @gust_history.last.nil?
 
-      erb :index
+      erb :weather, :layout => false
     end
 
   end
