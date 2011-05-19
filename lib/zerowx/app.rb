@@ -16,8 +16,13 @@ module ZeroWx
     end
 
     get "/" do
+      # stations list is filled out from localstorage
       @stations = []
       erb :stations
+    end
+
+    get "/about" do
+      erb :about, :layout => false
     end
 
     get "/add_station" do

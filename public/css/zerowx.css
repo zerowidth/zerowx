@@ -60,3 +60,11 @@ a img {
   float: right;
   margin-top: 4px;
 }
+
+#about p {
+  text-align: center;
+}
+
+#about p a img {
+  text-decoration: none;
+}
