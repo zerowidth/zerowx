@@ -42,11 +42,13 @@ module ZeroWx
 
     def reformat_stations(stations)
       stations.each do |station|
-        neighborhood = station["neighborhood"].strip.gsub(/\s+/, " ")
+        neighborhood = station["neighborhood"] ? station["neighborhood"].strip.gsub(/\s+/, " ") : ""
         location = "#{station["city"]}, #{station["state"]}"
 
         station["name"] = neighborhood == "" ? location : neighborhood
         station["location"] = location
+
+        station["id"] ||= station["icao"]
       end
       stations
     end
