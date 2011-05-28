@@ -9,7 +9,9 @@ module ZeroWx
     class << self
       attr_accessor :base_url
       attr_accessor :cache_server
+      attr_accessor :cache_enabled
     end
+    self.cache_enabled = true
 
     attr_reader :http
 
@@ -20,7 +22,7 @@ module ZeroWx
     end
 
     def cache(key, ttl)
-      if Api.cache_server
+      if Api.cache_enabled && Api.cache_server
         key = key.gsub(/\W/, "-")
         puts "cache get: #{key}"
         Api.cache_server.fetch(key, ttl) do
@@ -28,6 +30,7 @@ module ZeroWx
           yield
         end
       else
+        puts "nocache: #{key}"
         yield
       end
     end
