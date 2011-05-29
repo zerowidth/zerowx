@@ -139,6 +139,24 @@ module ZeroWx
       end
       @gust_history.pop while @gust_history.size > 0 && @gust_history.last.nil?
 
+      @weather_data = Map.new(
+        :min_t => (@temp_history + @temperatures).compact.min - 5,
+        :max_t => (@temp_history + @temperatures).compact.max + 5,
+        :max_w => (@wind_history + @wind_speeds + @wind_gusts).compact.max + 5,
+        :night_day => @night_day,
+        :hour_marks => @hour_marks,
+        :wind_gusts => @wind_gusts,
+        :wind_speeds => @wind_speeds,
+        :temperatures => @temperatures,
+        :current_time => @current_time,
+        :gust_history => @gust_history,
+        :wind_history => @wind_history,
+        :temp_history => @temp_history,
+        :night_day => @night_day,
+        :cloud_cover => @cloud_cover,
+        :precipitation => @precipitation
+      )
+
       erb :weather, :layout => false
     end
 
